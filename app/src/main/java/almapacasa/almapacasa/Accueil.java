@@ -20,14 +20,9 @@ import com.couchbase.lite.Document;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
+import Classes.MyBDD;
 
 public class Accueil extends AppCompatActivity {
-
-    public static final String DB_NAME = "couchbaseevents";
-    public static final String TAG = "couchbaseevents";
-    private Manager manager;
-    private Database database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,67 +32,8 @@ public class Accueil extends AppCompatActivity {
     }
 
     private void helloCBL() {
-        manager = null;
-        database = null;
-        try {
-            manager = new Manager(new AndroidContext(this), Manager.DEFAULT_OPTIONS);
-            database = manager.getDatabase(DB_NAME);
-        } catch (Exception e) {
-            Log.e(TAG, "Error getting database", e);
-            return;
-        }
-        // Create the document
-        String documentId = createDocument(database);
-        Log.d(TAG, documentId);
-        Log.d(TAG, database.toString() + "hello c'est le document");
-        Document retrieveDocument = database.getDocument(documentId);
-        Log.d(TAG, String.valueOf(retrieveDocument.getProperties()));
-        Log.d(TAG, String.valueOf(database.getDocumentCount()));
-        try {
-            database.delete();
-        }
-        catch (CouchbaseLiteException e)
-        {
-
-        }
-    /* Get and output the contents */
-        //outputContents(database, documentId);
-    /* Update the document and add an attachment */
-        //updateDoc(database, documentId);
-        // Add an attachment
-        //addAttachment(database, documentId);
-    /* Get and output the contents with the attachment */
-        //outputContentsWithAttachment(database, documentId);
-
-    }
-
-    private String createDocument(Database database) {
-        // Create a new document and add data
-        Document document = database.createDocument();
-        String documentId = document.getId();
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put("name", "Big Party");
-        map.put("location", "My House");
-        try {
-            // Save the properties to the document
-            document.putProperties(map);
-        } catch (CouchbaseLiteException e) {
-            Log.e(TAG, "Error putting", e);
-        }
-        return documentId;
-    }
-
-    public Database getDatabaseInstance() throws CouchbaseLiteException {
-        if ((this.database == null) & (this.manager != null)) {
-            this.database = manager.getDatabase(DB_NAME);
-        }
-        return database;
-    }
-    public Manager getManagerInstance() throws IOException {
-        if (manager == null) {
-            manager = new Manager(new AndroidContext(this), Manager.DEFAULT_OPTIONS);
-        }
-        return manager;
+        //On instancie une connexion à la base de donnée interne
+        MyBDD BDD = new MyBDD(new AndroidContext(this));
     }
 
     @Override
