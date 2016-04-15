@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Almapacasa</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_login">Connexion</string>
+    <string name="hint_username">Identifiant</string>
+    <string name="hint_password">Mot de passe</string>
+    <string name="txt_bouton_connexion">Connexion</string>
 </resources>
