@@ -35,6 +35,7 @@ public class Accueil extends AppCompatActivity implements Async.AsyncResponse {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_accueil, menu);
+        //lul
         return true;
     }
 
