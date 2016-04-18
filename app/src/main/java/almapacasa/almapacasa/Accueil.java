@@ -23,6 +23,8 @@ public class Accueil extends AppCompatActivity implements Async.AsyncResponse {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_accueil);
+
+
     }
 
     public void chargement(View view)

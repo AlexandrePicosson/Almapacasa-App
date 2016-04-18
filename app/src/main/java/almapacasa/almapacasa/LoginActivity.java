@@ -40,7 +40,7 @@ public class LoginActivity extends AppCompatActivity implements Async.AsyncRespo
         BDD = MyBDD.getmInstance(new AndroidContext(this));
         //BDD.emptyBDD();
         boolean var = BDD.autoLogin();
-        if(var){
+        if(true){
             Intent intent = new Intent(this,Accueil.class);
             startActivity(intent);
         }
