@@ -43,6 +43,7 @@ public class LoginActivity extends AppCompatActivity implements Async.AsyncRespo
         if(true){
             Intent intent = new Intent(this,Accueil.class);
             startActivity(intent);
+            finish();
         }
     }
 
@@ -85,5 +86,6 @@ public class LoginActivity extends AppCompatActivity implements Async.AsyncRespo
     {
         Intent intent = new Intent(this,Accueil.class);
         startActivity(intent);
+        finish();
     }
 }

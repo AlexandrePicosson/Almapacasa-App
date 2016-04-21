@@ -26,6 +26,7 @@ public class Async extends AsyncTask<String, Void, JSONArray> {
 
     StringBuilder sbParams;
     String LOGIN_URL = "http://192.168.1.38/almapacasa/androidLogin.php";
+    String IMPORT_URL = "http://192.168.1.38/almapacasa/";
 
 
     public interface AsyncResponse {
@@ -51,7 +52,7 @@ public class Async extends AsyncTask<String, Void, JSONArray> {
         if(params[0].equals("import"))
         {
             try {
-                return downloadUrl(params[0]);
+                return downloadUrl(params[1], params[2]);
             } catch (IOException e){
                 return null;
             }
@@ -102,24 +103,17 @@ public class Async extends AsyncTask<String, Void, JSONArray> {
         }
     }
 
-    private JSONArray downloadUrl(String myurl) throws IOException{
+    private JSONArray downloadUrl(String identifiant, String mdp) throws IOException{
         InputStream is = null;
+
         try{
-            URL url = new URL(myurl);
-            int len = 500;
-            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-            connection.setReadTimeout(10000);
-            connection.setConnectTimeout(15000);
-            connection.setRequestMethod("GET");
-            connection.setDoInput(true);
-            //Start Query
-            connection.connect();
-            int response = connection.getResponseCode();
-            Log.d("CONTEXT", "the response is " + response);
-            is = new BufferedInputStream(connection.getInputStream());
-            JSONArray laREP = ReadJSON(is);
-            connection.disconnect();
-            return laREP;
+            URL url = new URL(IMPORT_URL);
+
+            return //laREP;
+        }catch (IOException e)
+        {
+            e.printStackTrace();
+            return null;
         } finally {
             if (is != null)
             {
