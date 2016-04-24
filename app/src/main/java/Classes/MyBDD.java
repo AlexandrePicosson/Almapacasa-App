@@ -14,6 +14,7 @@ import com.couchbase.lite.QueryEnumerator;
 import com.couchbase.lite.QueryRow;
 import com.couchbase.lite.View;
 import com.couchbase.lite.android.AndroidContext;
+import com.couchbase.lite.internal.database.security.Key;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -63,23 +64,22 @@ public class MyBDD {
         if(mInstance == null)
         {
             mInstance = new MyBDD(TheContext);
-        }
+    }
         return mInstance;
     }
 
     public boolean saveLogin(JSONArray leLogin)
     {
         Document document = myDatabase.createDocument();
-        String documentId = document.getId();
         Map<String, Object> map = new HashMap<String, Object>();
         String id, nom, identifiant, mdp;
         try
         {
             JSONObject Infirmière = leLogin.getJSONObject(0);
-            id = Infirmière.getString("ID");
-            nom = Infirmière.getString("NOM");
-            identifiant = Infirmière.getString("LOGIN");
-            mdp = Infirmière.getString("MDP");
+            id = Infirmière.getString("id");
+            nom = Infirmière.getString("nom");
+            identifiant = Infirmière.getString("login");
+            mdp = Infirmière.getString("mdp");
         }catch(JSONException e)
         {
             e.printStackTrace();
@@ -141,6 +141,54 @@ public class MyBDD {
                 }
         }catch (CouchbaseLiteException e)
         {
+            e.printStackTrace();
+        }
+    }
+
+    public void importDonnee(JSONArray data)
+    {
+        try{
+            JSONArray dataVisite = data.getJSONArray(0);
+            JSONArray dataSoin = data.getJSONArray(1);
+            JSONArray dataTypeSoin = data.getJSONArray(2);
+            saveVisite(dataVisite);
+        } catch(JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveVisite(JSONArray dataVisite) {
+        try{
+            for (int i=0; i < dataVisite.length();i++){
+                Document document = myDatabase.createDocument();
+                Map<String, Object> map = new HashMap<String, Object>();
+                JSONArray soins;
+                JSONObject patient;
+                String HeureDebut, HeureFin, Commentaire, id;
+                JSONObject laVisite = dataVisite.getJSONObject(i);
+                soins = laVisite.getJSONArray("soins");
+                patient = laVisite.getJSONObject("patient");
+                HeureDebut = laVisite.getString("heureDebut");
+                HeureFin = laVisite.getString("heureFin");
+                Commentaire = laVisite.getString("commentaire");
+                id = laVisite.getString("id");
+                map.put("type", "VISITE");
+                map.put("id", id);
+                map.put("soinsPrevu", soins.toString());
+                map.put("soinsRealise", new JSONArray().toString());
+                map.put("patient", patient.toString());
+                map.put("heureDebut", HeureDebut);
+                map.put("heureFin", HeureFin);
+                map.put("Commentaire", Commentaire);
+                try{
+                    document.putProperties(map);
+                }catch (CouchbaseLiteException e)
+                {
+                    android.util.Log.e(TAG, "Error putting", e);
+                }
+                com.couchbase.lite.util.Log.e(TAG, "doc named %s value = %s", document.getId(), document.getProperties());
+            }
+        }catch (JSONException e){
             e.printStackTrace();
         }
     }

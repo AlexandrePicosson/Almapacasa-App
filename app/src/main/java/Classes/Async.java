@@ -25,8 +25,8 @@ import java.net.URLEncoder;
 public class Async extends AsyncTask<String, Void, JSONArray> {
 
     StringBuilder sbParams;
-    String LOGIN_URL = "http://192.168.1.38/almapacasa/androidLogin.php";
-    String IMPORT_URL = "http://192.168.1.38/almapacasa/";
+    String LOGIN_URL = "http://192.168.1.53/almapacasa/androidLogin.php";
+    String IMPORT_URL = "http://192.168.1.53/almapacasa/androidImport.php";
 
 
     public interface AsyncResponse {
@@ -75,6 +75,7 @@ public class Async extends AsyncTask<String, Void, JSONArray> {
                 sbParams.append("&").append("mdp").append("=").append(URLEncoder.encode(mdp, "UTF-8"));
             }catch (UnsupportedEncodingException e){
                 e.printStackTrace();
+                return null;
             }
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
@@ -108,8 +109,30 @@ public class Async extends AsyncTask<String, Void, JSONArray> {
 
         try{
             URL url = new URL(IMPORT_URL);
-
-            return //laREP;
+            try {
+                sbParams = new StringBuilder();
+                sbParams.append("&").append("id").append("=").append(URLEncoder.encode(identifiant, "UTF-8"));
+                sbParams.append("&").append("mdp").append("=").append(URLEncoder.encode(mdp, "UTF-8"));
+            }catch (UnsupportedEncodingException e)
+            {
+                e.printStackTrace();
+                return null;
+            }
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Accept-Charset", "UTF-8");
+            connection.setReadTimeout(10000);
+            connection.setConnectTimeout(15000);
+            connection.connect();
+            DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
+            wr.writeBytes(sbParams.toString());
+            wr.flush();
+            wr.close();
+            is = new BufferedInputStream(connection.getInputStream());
+            JSONArray laREP = ReadJSON(is);
+            connection.disconnect();
+            return laREP;
         }catch (IOException e)
         {
             e.printStackTrace();

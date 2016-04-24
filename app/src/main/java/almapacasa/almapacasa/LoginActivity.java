@@ -38,9 +38,9 @@ public class LoginActivity extends AppCompatActivity implements Async.AsyncRespo
         textIdentifiant = (EditText)findViewById(R.id.EditTextIdentifiant);
         textMDP = (EditText)findViewById(R.id.EditTextMDP);
         BDD = MyBDD.getmInstance(new AndroidContext(this));
-        //BDD.emptyBDD();
+        BDD.emptyBDD();
         boolean var = BDD.autoLogin();
-        if(true){
+        if(var){
             Intent intent = new Intent(this,Accueil.class);
             startActivity(intent);
             finish();
@@ -62,6 +62,7 @@ public class LoginActivity extends AppCompatActivity implements Async.AsyncRespo
                     if(test)
                     {
                         Log.d("LOGIN", "SaveBDD reussie");
+                        importGlobal();
                         launchAccueil();
                     }
                 }
@@ -87,5 +88,17 @@ public class LoginActivity extends AppCompatActivity implements Async.AsyncRespo
         Intent intent = new Intent(this,Accueil.class);
         startActivity(intent);
         finish();
+    }
+
+    public void importGlobal()
+    {
+        Async asyncTask = (Async) new Async(new Async.AsyncResponse() {
+            @Override
+            public void processFinish(JSONArray output) {
+            if(output != null && output.length() > 0) {
+                BDD.importDonnee(output);
+            }
+            }
+        }).execute("import", textIdentifiant.getText().toString(), textMDP.getText().toString());
     }
 }
