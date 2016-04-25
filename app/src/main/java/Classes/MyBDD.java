@@ -36,9 +36,11 @@ public class MyBDD {
     private static Manager myManager = null;
     private static Database myDatabase = null;
     private static View infirmiereView;
+    private static View visiteView;
+    private static View soinView;
+    private static View typeSoinView;
 
-    public MyBDD (AndroidContext TheContext)
-    {
+    public MyBDD (AndroidContext TheContext) {
         try{
             myManager = new Manager(TheContext, Manager.DEFAULT_OPTIONS);
             myDatabase = myManager.getDatabase(DB_NAME);
@@ -58,6 +60,39 @@ public class MyBDD {
                 }
             }
         }, "1");
+
+        visiteView = myDatabase.getView("visite");
+        visiteView.setMap(new Mapper() {
+            @Override
+            public void map(Map<String, Object> document, Emitter emitter) {
+                if(document.get("type").equals("VISITE")) {
+                    String id = (String) document.get("id");
+                    emitter.emit("id",id);
+                }
+            }
+        }, "1");
+
+        soinView = myDatabase.getView("soins");
+        soinView.setMap(new Mapper() {
+            @Override
+            public void map(Map<String, Object> document, Emitter emitter) {
+                if(document.get("type").equals("SOIN")) {
+                    String id = (String) document.get("id");
+                    emitter.emit("id",id);
+                }
+            }
+        }, "1");
+
+        typeSoinView = myDatabase.getView("typeSoin");
+        typeSoinView.setMap(new Mapper() {
+            @Override
+            public void map(Map<String, Object> document, Emitter emitter) {
+                if(document.get("type").equals("TYPESOIN")) {
+                    String id = (String) document.get("id");
+                    emitter.emit("id",id);
+                }
+            }
+        }, "1");
     }
 
     public static MyBDD getmInstance(AndroidContext TheContext){
@@ -68,8 +103,7 @@ public class MyBDD {
         return mInstance;
     }
 
-    public boolean saveLogin(JSONArray leLogin)
-    {
+    public boolean saveLogin(JSONArray leLogin) {
         Document document = myDatabase.createDocument();
         Map<String, Object> map = new HashMap<String, Object>();
         String id, nom, identifiant, mdp;
@@ -145,13 +179,14 @@ public class MyBDD {
         }
     }
 
-    public void importDonnee(JSONArray data)
-    {
+    public void importDonnee(JSONArray data) {
         try{
             JSONArray dataVisite = data.getJSONArray(0);
             JSONArray dataSoin = data.getJSONArray(1);
             JSONArray dataTypeSoin = data.getJSONArray(2);
             saveVisite(dataVisite);
+            saveSoin(dataSoin);
+            saveTypeSoin(dataTypeSoin);
         } catch(JSONException e) {
             e.printStackTrace();
         }
@@ -164,7 +199,7 @@ public class MyBDD {
                 Map<String, Object> map = new HashMap<String, Object>();
                 JSONArray soins;
                 JSONObject patient;
-                String HeureDebut, HeureFin, Commentaire, id;
+                String HeureDebut, HeureFin, Commentaire, id, date;
                 JSONObject laVisite = dataVisite.getJSONObject(i);
                 soins = laVisite.getJSONArray("soins");
                 patient = laVisite.getJSONObject("patient");
@@ -172,6 +207,7 @@ public class MyBDD {
                 HeureFin = laVisite.getString("heureFin");
                 Commentaire = laVisite.getString("commentaire");
                 id = laVisite.getString("id");
+                date = laVisite.getString("date");
                 map.put("type", "VISITE");
                 map.put("id", id);
                 map.put("soinsPrevu", soins.toString());
@@ -180,6 +216,7 @@ public class MyBDD {
                 map.put("heureDebut", HeureDebut);
                 map.put("heureFin", HeureFin);
                 map.put("Commentaire", Commentaire);
+                map.put("date", date);
                 try{
                     document.putProperties(map);
                 }catch (CouchbaseLiteException e)
@@ -193,4 +230,60 @@ public class MyBDD {
         }
     }
 
+    public void saveSoin(JSONArray dataSoin){
+        try{
+            for(int i=0; i < dataSoin.length();i++){
+                Document document = myDatabase.createDocument();
+                Map<String,Object> map = new HashMap<String,Object>();
+                String id, idTypeSoin, libelle;
+                JSONObject leSoin = dataSoin.getJSONObject(i);
+                id = leSoin.getString("id");
+                idTypeSoin = leSoin.getString("idTypeSoin");
+                libelle = leSoin.getString("libelle");
+                map.put("type", "SOIN");
+                map.put("id", id);
+                map.put("idTypeSoin", idTypeSoin);
+                map.put("libelle", libelle);
+                try{
+                    document.putProperties(map);
+                }catch(CouchbaseLiteException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void saveTypeSoin(JSONArray dataTypeSoin){
+        try{
+            for(int i=0;i < dataTypeSoin.length();i++){
+                Document document = myDatabase.createDocument();
+                Map<String,Object> map = new HashMap<String,Object>();
+                String id, libelle;
+                JSONObject leTypeSoin = dataTypeSoin.getJSONObject(i);
+                id = leTypeSoin.getString("id");
+                libelle = leTypeSoin.getString("libelle");
+                map.put("type","TYPESOIN");
+                map.put("id", id);
+                map.put("libelle", libelle);
+                try{
+                    document.putProperties(map);
+                }catch (CouchbaseLiteException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }catch(JSONException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void getVisites(String jour)
+    {
+
+    }
+//10.0.3.0
 }
