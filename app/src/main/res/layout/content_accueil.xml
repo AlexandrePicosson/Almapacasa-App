@@ -29,51 +29,75 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="L"
-                android:id="@+id/button" />
+                android:tag="lundi"
+                android:id="@+id/button"
+                android:onClick="changeDay"/>
 
             <Button
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="M"
-                android:id="@+id/button2" />
+                android:tag="mardi"
+                android:id="@+id/button2"
+                android:onClick="changeDay"/>
 
             <Button
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="M"
-                android:id="@+id/button3" />
+                android:tag="mercredi"
+                android:id="@+id/button3"
+                android:onClick="changeDay"/>
 
             <Button
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="J"
-                android:id="@+id/button4" />
+                android:tag="jeudi"
+                android:id="@+id/button4"
+                android:onClick="changeDay"/>
 
             <Button
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="V"
-                android:id="@+id/button5" />
+                android:tag="vendredi"
+                android:id="@+id/button5"
+                android:onClick="changeDay"/>
 
             <Button
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="S"
-                android:id="@+id/button6" />
+                android:tag="samedi"
+                android:id="@+id/button6"
+                android:onClick="changeDay"/>
 
             <Button
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="D"
-                android:id="@+id/button7" />
+                android:tag="dimanche"
+                android:id="@+id/button7"
+                android:onClick="changeDay"/>
 
         </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:id="@+id/lblDayOfWeek"
+            android:textStyle="normal"
+            android:textSize="30dp"
+            android:paddingBottom="10px"
+            />
 
         <ExpandableListView
             android:layout_width="match_parent"

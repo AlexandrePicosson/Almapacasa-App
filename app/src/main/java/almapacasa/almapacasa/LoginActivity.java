@@ -38,7 +38,8 @@ public class LoginActivity extends AppCompatActivity implements Async.AsyncRespo
         textIdentifiant = (EditText)findViewById(R.id.EditTextIdentifiant);
         textMDP = (EditText)findViewById(R.id.EditTextMDP);
         BDD = MyBDD.getmInstance(new AndroidContext(this));
-        BDD.emptyBDD();
+        //BDD.emptyBDD();
+        //BDD.emptyInfirmiere();
         boolean var = BDD.autoLogin();
         if(var){
             Intent intent = new Intent(this,Accueil.class);

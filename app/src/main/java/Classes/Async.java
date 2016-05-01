@@ -25,8 +25,8 @@ import java.net.URLEncoder;
 public class Async extends AsyncTask<String, Void, JSONArray> {
 
     StringBuilder sbParams;
-    String LOGIN_URL = "http://192.168.183.1/almapacasa/androidLogin.php";
-    String IMPORT_URL = "http://192.168.183.1/almapacasa/androidImport.php";
+    String LOGIN_URL = "http://192.168.1.53/almapacasa/androidLogin.php";
+    String IMPORT_URL = "http://192.168.1.53/almapacasa/androidImport.php";
 
 
     public interface AsyncResponse {

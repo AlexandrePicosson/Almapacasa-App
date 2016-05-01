@@ -20,10 +20,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+
+import almapacasa.ClassesMetier.Personne;
+import almapacasa.ClassesMetier.Visite;
 
 /**
  * Created by Alexandre on 02/04/2016.
@@ -162,7 +171,7 @@ public class MyBDD {
         return false;
     }
 
-    public void emptyBDD() {
+    public void emptyInfirmiere() {
         Query query = infirmiereView.createQuery();
         query.setLimit(1);
         try {
@@ -281,9 +290,63 @@ public class MyBDD {
         }
     }
 
-    public void getVisites(String jour)
+    public void emptyBDD()
     {
+        try {
+            Query query = visiteView.createQuery();
+            deleteDocuments(query);
 
+            query = soinView.createQuery();
+            deleteDocuments(query);
+
+            query = typeSoinView.createQuery();
+            deleteDocuments(query);
+        }catch (CouchbaseLiteException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private void deleteDocuments(Query query) throws CouchbaseLiteException {
+
+        QueryEnumerator result = query.run();
+
+        for (Iterator<QueryRow> it = result; it.hasNext(); ) {
+            QueryRow row = it.next();
+            Document document = row.getDocument();
+            document.delete();
+        }
+
+    }
+
+    public ArrayList<Visite> getVisites(String dayOfWeek)
+    {
+        ArrayList<Visite> lesVisites = new ArrayList<>();
+        Query query = visiteView.createQuery();
+        try{
+            QueryEnumerator result = query.run();
+            for (Iterator<QueryRow> it = result; it.hasNext();) {
+                QueryRow row = it.next();
+                Document document = row.getDocument();
+
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                Date date = df.parse(document.getProperty("date").toString());
+                df = new SimpleDateFormat("EEEE", Locale.FRANCE);
+                android.util.Log.e(TAG,df.format(date));
+                if (df.format(date).equals(dayOfWeek)) {
+                    JSONObject patient = new JSONObject(document.getProperty("patient").toString());
+                    Visite visite = new Visite(document.getProperty("id").toString(), patient.getString("nom"), patient.getString("prenom"), patient.getString("adresse"), patient.getString("numero"), document.getProperty("heureDebut").toString(), document.getProperty("heureFin").toString(), document.getProperty("Commentaire").toString(), document.getProperty("date").toString());
+                    lesVisites.add(visite);
+                }
+            }
+        }catch (CouchbaseLiteException e){
+            e.printStackTrace();
+            lesVisites = null;
+        }finally {
+            return lesVisites;
+        }
     }
 //10.0.3.0
 }
+
+//TODO Edit le code pour pas a avoir à acceder a chaque fois aux données
