@@ -40,6 +40,12 @@ public class Visite {
         setLesSoinRealise(new ArrayList<Soin>());
     }
 
+    public Visite()
+    {
+      this.lesSoinsPrevu = new ArrayList<Soin>();
+      this.lesSoinRealise = new ArrayList<Soin>();
+    }
+
     public String getId() {
         return id;
     }

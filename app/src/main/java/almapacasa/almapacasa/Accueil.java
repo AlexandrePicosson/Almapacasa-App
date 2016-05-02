@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -58,7 +59,7 @@ public class Accueil extends AppCompatActivity implements Async.AsyncResponse {
         lblDay = (TextView) findViewById(R.id.lblDayOfWeek);
         lblDay.setText(toFirstLetterUpperCase(getCurrentDayOfWeek()));
         lblDay.setPaintFlags(lblDay.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-
+        Visite v = BDD.getUneVisite("15");
 
         expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
 
@@ -66,9 +67,10 @@ public class Accueil extends AppCompatActivity implements Async.AsyncResponse {
             public boolean onChildClick(ExpandableListView parent, View v,
                                         int groupPosition, int childPosition, long id) {
 
-                //listDataHeader.get(groupPosition)
-
+                Visite visiteCliqued = listVisites.get(groupPosition);
+                String idVisite = visiteCliqued.getId();
                 return false;
+                //TODO declarer l'intent de l'activity de modif de visite
             }
         });
     }

@@ -24,14 +24,17 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import almapacasa.ClassesMetier.Personne;
+import almapacasa.ClassesMetier.Soin;
 import almapacasa.ClassesMetier.Visite;
 
 /**
@@ -76,10 +79,10 @@ public class MyBDD {
             public void map(Map<String, Object> document, Emitter emitter) {
                 if(document.get("type").equals("VISITE")) {
                     String id = (String) document.get("id");
-                    emitter.emit("id",id);
+                    emitter.emit(id, null);
                 }
             }
-        }, "1");
+        }, "2");
 
         soinView = myDatabase.getView("soins");
         soinView.setMap(new Mapper() {
@@ -87,10 +90,10 @@ public class MyBDD {
             public void map(Map<String, Object> document, Emitter emitter) {
                 if(document.get("type").equals("SOIN")) {
                     String id = (String) document.get("id");
-                    emitter.emit("id",id);
+                    emitter.emit(id,null);
                 }
             }
-        }, "1");
+        }, "2");
 
         typeSoinView = myDatabase.getView("typeSoin");
         typeSoinView.setMap(new Mapper() {
@@ -192,6 +195,7 @@ public class MyBDD {
         try{
             JSONArray dataVisite = data.getJSONArray(0);
             JSONArray dataSoin = data.getJSONArray(1);
+            android.util.Log.e(TAG,dataSoin.toString());
             JSONArray dataTypeSoin = data.getJSONArray(2);
             saveVisite(dataVisite);
             saveSoin(dataSoin);
@@ -226,6 +230,7 @@ public class MyBDD {
                 map.put("heureFin", HeureFin);
                 map.put("Commentaire", Commentaire);
                 map.put("date", date);
+                map.put("timestamp", null);
                 try{
                     document.putProperties(map);
                 }catch (CouchbaseLiteException e)
@@ -253,6 +258,7 @@ public class MyBDD {
                 map.put("id", id);
                 map.put("idTypeSoin", idTypeSoin);
                 map.put("libelle", libelle);
+                android.util.Log.e(TAG, libelle);
                 try{
                     document.putProperties(map);
                 }catch(CouchbaseLiteException e)
@@ -346,7 +352,91 @@ public class MyBDD {
             return lesVisites;
         }
     }
+
+    public Visite getUneVisite(String id)
+    {
+        Visite visite = new Visite();
+        Query query = visiteView.createQuery();
+        List<Object> keys = new ArrayList<Object>();
+        keys.add(id);
+        query.setKeys(keys);
+        try {
+            QueryEnumerator result = query.run();
+            if(result.getCount() == 0)
+            {
+                return null;
+            }
+
+            QueryRow value =  result.getRow(0);
+            Document document = value.getDocument();
+            JSONObject patient = new JSONObject(document.getProperty("patient").toString());
+            visite = new Visite(document.getProperty("id").toString(), patient.getString("nom"), patient.getString("prenom"), patient.getString("adresse"), patient.getString("numero"), document.getProperty("heureDebut").toString(), document.getProperty("heureFin").toString(), document.getProperty("Commentaire").toString(), document.getProperty("date").toString());
+            keys = new ArrayList<Object>();
+            JSONArray lesSoinPrevu = new JSONArray(document.getProperty("soinsPrevu").toString());
+            for(int i=0;i<lesSoinPrevu.length();i++){
+                JSONObject item = lesSoinPrevu.getJSONObject(i);
+                keys.add(item.getString("idSoin"));
+            }
+            ajouteLesSoinALaVisite(keys, visite);
+        } catch (CouchbaseLiteException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return visite;
+    }
+
+    private void ajouteLesSoinALaVisite(List<Object> keys, Visite visite) throws CouchbaseLiteException {
+        Query requete = soinView.createQuery();
+        requete.setKeys(keys);
+        QueryEnumerator qESoin = requete.run();
+        for (Iterator<QueryRow> it = qESoin; it.hasNext();){
+            QueryRow row = it.next();
+            Document doc = row.getDocument();
+            visite.getLesSoinsPrevu().add(new Soin(doc.getProperty("id").toString(), doc.getProperty("idTypeSoin").toString(), doc.getProperty("libelle").toString()));
+        }
+    }
+
+    private boolean saveVisite(Visite visite)
+    {
+        Query query = visiteView.createQuery();
+        List<Object> keys = new ArrayList<>();
+        keys.add(visite.getId());
+        query.setKeys(keys);
+        try{
+            QueryEnumerator result = query.run();
+            if(result.getCount() < 1){
+                return false;
+            }
+            QueryRow value = result.getRow(0);
+            Document document = value.getDocument();
+            Map<String, Object> updatedProperties = new HashMap<String, Object>();
+            updatedProperties.putAll(document.getProperties());
+            JSONArray lesSoinPrevu = new JSONArray();
+            for (Soin s: visite.getLesSoinsPrevu()) {
+                lesSoinPrevu.put(s.getId());
+            }
+            updatedProperties.put("soinsPrevu",lesSoinPrevu.toString());
+            JSONArray lesSoinRealise = new JSONArray();
+            for(Soin s: visite.getLesSoinRealise()) {
+                lesSoinRealise.put(s.getId());
+            }
+            updatedProperties.put("soinsRealise", lesSoinRealise.toString());
+            updatedProperties.put("heureDebut", visite.getHeureDebut());
+            updatedProperties.put("heureFin", visite.getHeureFin());
+            updatedProperties.put("Commentaire", visite.getCommentaire());
+            Calendar calendar = Calendar.getInstance();
+            Date date = calendar.getTime();
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd",Locale.FRANCE);
+            updatedProperties.put("timestamp", df.format(date).toString() );
+            document.putProperties(updatedProperties);
+            return true;
+        }catch (CouchbaseLiteException e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 //10.0.3.0
 }
 
-//TODO Edit le code pour pas a avoir à acceder a chaque fois aux données
