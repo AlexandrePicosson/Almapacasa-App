@@ -6,6 +6,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -17,9 +19,11 @@ import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.couchbase.lite.CouchbaseLiteException;
 import com.couchbase.lite.android.AndroidContext;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
@@ -45,6 +49,7 @@ public class Accueil extends AppCompatActivity implements Async.AsyncResponse {
     HashMap<String, List<String>> listDataChild;
     MyBDD BDD;
     public static TextView lblDay;
+    public static String rep;
 
 
     @Override
@@ -71,6 +76,48 @@ public class Accueil extends AppCompatActivity implements Async.AsyncResponse {
                 String idVisite = visiteCliqued.getId();
                 return false;
                 //TODO declarer l'intent de l'activity de modif de visite
+            }
+        });
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    JSONArray lul = BDD.makeJSON();
+
+                    ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo ntwrkInfo = connMgr.getActiveNetworkInfo();
+                    if(ntwrkInfo != null && ntwrkInfo.isConnected())
+                    {
+
+                        Async asyncTask = (Async) new Async(new Async.AsyncResponse() {
+                            @Override
+                            public void processFinish(JSONArray output) {
+                                rep = null;
+                                if(output != null && output.length() > 0) {
+                                    Log.d("UPLOAD", "Upload réussi");
+                                    rep = "Upload réussi";
+                                }
+                                else
+                                {
+                                    Log.d("UPLOAD", "Upload raté");
+                                    rep = "Upload raté";
+                                }
+                            }
+                        }).execute("upload","a","a", lul.toString());
+                    }else
+                    {
+                        rep = "Pas d'accès internet";
+                    }
+                }catch (CouchbaseLiteException e)
+                {
+                    e.printStackTrace();
+                }catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Snackbar.make(view, rep, Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
             }
         });
     }

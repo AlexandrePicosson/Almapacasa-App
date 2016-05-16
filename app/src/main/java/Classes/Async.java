@@ -8,12 +8,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -25,8 +28,9 @@ import java.net.URLEncoder;
 public class Async extends AsyncTask<String, Void, JSONArray> {
 
     StringBuilder sbParams;
-    String LOGIN_URL = "http://192.168.1.53/almapacasa/androidLogin.php";
-    String IMPORT_URL = "http://192.168.1.53/almapacasa/androidImport.php";
+    String LOGIN_URL = "http://192.168.1.38/ppe/androidLogin.php";
+    String IMPORT_URL = "http://192.168.1.38/ppe/androidImport.php";
+    String EXPORT_URL = "http://192.168.1.38/ppe/androidExport.php";
 
 
     public interface AsyncResponse {
@@ -53,6 +57,14 @@ public class Async extends AsyncTask<String, Void, JSONArray> {
         {
             try {
                 return downloadUrl(params[1], params[2]);
+            } catch (IOException e){
+                return null;
+            }
+        }
+        if(params[0].equals("upload"))
+        {
+            try {
+                return uploadURL(params[1], params[2], params[3]);
             } catch (IOException e){
                 return null;
             }
@@ -145,6 +157,35 @@ public class Async extends AsyncTask<String, Void, JSONArray> {
         }
     }
 
+    private JSONArray uploadURL(String identifiant, String mdp, String data) throws IOException {
+        InputStream is = null;
+        try {
+            sbParams = new StringBuilder();
+            sbParams.append("&").append("id").append("=").append(URLEncoder.encode(identifiant, "UTF-8"));
+            sbParams.append("&").append("mdp").append("=").append(URLEncoder.encode(mdp, "UTF-8"));
+            sbParams.append("&").append("data").append("=").append(URLEncoder.encode(data,"UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return null;
+        }
+        URL url = new URL(EXPORT_URL);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setDoOutput(true);
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Accept-Charset", "UTF-8");
+        connection.setReadTimeout(10000);
+        connection.setConnectTimeout(15000);
+        connection.connect();
+        DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
+        wr.writeBytes(sbParams.toString());
+        wr.flush();
+        wr.close();
+        is = new BufferedInputStream(connection.getInputStream());
+        JSONArray laREP = ReadJSON(is);
+        connection.disconnect();
+        return laREP;
+    }
+
     private JSONArray ReadJSON(InputStream is) throws IOException {
         StringBuilder reponse = null;
         JSONArray objJSON = null;
@@ -181,4 +222,6 @@ public class Async extends AsyncTask<String, Void, JSONArray> {
         reader.read(buffer);
         return new String(buffer);
     }
+
+
 }

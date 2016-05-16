@@ -305,8 +305,8 @@ public class MyBDD {
             query = soinView.createQuery();
             deleteDocuments(query);
 
-            query = typeSoinView.createQuery();
-            deleteDocuments(query);
+            //query = typeSoinView.createQuery();
+            //deleteDocuments(query);
         }catch (CouchbaseLiteException e)
         {
             e.printStackTrace();
@@ -397,7 +397,7 @@ public class MyBDD {
         }
     }
 
-    private boolean saveVisite(Visite visite)
+    public boolean saveVisite(Visite visite)
     {
         Query query = visiteView.createQuery();
         List<Object> keys = new ArrayList<>();
@@ -436,6 +436,26 @@ public class MyBDD {
         }
         return false;
     }
+
+    public JSONArray makeJSON() throws CouchbaseLiteException, JSONException {
+        JSONArray bigJSON = new JSONArray();
+        Query query = visiteView.createQuery();
+        QueryEnumerator result = query.run();
+        for(Iterator<QueryRow> it = result; it.hasNext();){
+            QueryRow row = it.next();
+            Document document = row.getDocument();
+            JSONObject json = new JSONObject();
+            json.put("id", document.getProperty("id").toString());
+            json.put("soinsRealise", document.getProperty("soinsRealise"));
+            json.put("patient", document.getProperty("patient"));
+            json.put("heureDebut", document.getProperty("heureDebut"));
+            json.put("heureFin", document.getProperty("heureFin"));
+            json.put("Commentaire", document.getProperty("Commentaire"));
+            json.put("timestamp", document.getProperty("timestamp"));
+            bigJSON.put(json);
+        }
+        return bigJSON;
+    };
 
 //10.0.3.0
 }

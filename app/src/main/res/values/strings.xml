@@ -5,4 +5,5 @@
     <string name="hint_username">Identifiant</string>
     <string name="hint_password">Mot de passe</string>
     <string name="txt_bouton_connexion">Connexion</string>
+    <string name="title_activity_main">MainActivity</string>
 </resources>
